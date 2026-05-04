@@ -1,0 +1,2649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strata — CRM Intelligence Workspace</title>
+<style>
+:root {
+  --bg: #0A1F3D;
+  --bg-deep: #061530;
+  --card: #15294D;
+  --card-alt: #1A3158;
+  --card-hov: #1F3B6B;
+  --border: #2A4370;
+  --border-sub: #1E3460;
+  --accent: #5FA3E0;
+  --accent-d: #4A8BC7;
+  --accent-glow: rgba(95, 163, 224, 0.15);
+  --soft-blue: #A8C5E8;
+  --white: #FFFFFF;
+  --muted: #8FA5C4;
+  --muted-dim: #6A80A0;
+  --green: #3BD4B0;
+  --green-dim: rgba(59, 212, 176, 0.15);
+  --amber: #F5B942;
+  --amber-dim: rgba(245, 185, 66, 0.15);
+  --red: #F87171;
+  --red-dim: rgba(248, 113, 113, 0.15);
+  --gray: #94A3B8;
+  --gray-dim: rgba(148, 163, 184, 0.15);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* ===== App Layout ===== */
+.app {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  background: var(--bg-deep);
+  border-right: 1px solid var(--border-sub);
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.brand {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  padding: 8px 12px 24px 12px;
+  color: var(--white);
+}
+.nav-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--muted-dim);
+  padding: 20px 12px 8px 12px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  color: var(--soft-blue);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 2px;
+  user-select: none;
+}
+.nav-item:hover { background: var(--card); color: var(--white); }
+.nav-item.active {
+  background: var(--accent-glow);
+  color: var(--accent);
+  font-weight: 600;
+}
+.nav-item .icon {
+  width: 16px; height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+}
+.nav-item .count {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--muted);
+}
+.nav-item .count.red { background: var(--red-dim); color: var(--red); }
+.nav-item .count.green { background: var(--green-dim); color: var(--green); }
+
+.user-card {
+  margin-top: auto;
+  padding: 12px;
+  background: var(--card);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--green));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--bg);
+}
+.user-name { font-size: 12px; font-weight: 600; }
+.user-role { font-size: 10px; color: var(--muted); }
+
+/* ===== Main area ===== */
+main {
+  padding: 24px 28px 48px 28px;
+  max-width: 1400px;
+  transition: margin-right 0.25s ease;
+}
+.app.drawer-open main {
+  margin-right: 440px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+.topbar h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.topbar p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-ghost {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--soft-blue);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--card);
+}
+.btn-ghost:hover { background: var(--card-hov); color: var(--white); }
+.btn-primary {
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 12px;
+  font-weight: 600;
+}
+.btn-primary:hover { background: var(--accent-d); }
+
+/* ===== View switching ===== */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ===== KPI Row ===== */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.kpi {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent);
+}
+.kpi.outcome::before { background: var(--green); }
+.kpi-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted-dim);
+  margin-bottom: 8px;
+}
+.kpi.outcome .kpi-label { color: var(--green); }
+.kpi-stat {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.1;
+}
+.kpi.outcome .kpi-stat { color: var(--green); }
+.kpi-detail {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ===== Section Card ===== */
+.section-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.section-card h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-card .section-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.cap-note {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+/* ===== Action cards (daily digest) ===== */
+.action-card {
+  background: var(--card-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  transition: background 0.15s, opacity 0.3s, transform 0.3s;
+}
+.action-card:hover { background: var(--card-hov); }
+.action-card.dismissed { opacity: 0.3; pointer-events: none; }
+.action-card.approved { opacity: 0.4; }
+.action-card.approved .action-prompt { text-decoration: line-through; color: var(--muted-dim); }
+.action-card.approved::after {
+  content: '✓ Done';
+  position: absolute;
+  right: 16px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 600;
+}
+.action-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+.action-type.alert { background: var(--red-dim); color: var(--red); }
+.action-type.commit { background: var(--green-dim); color: var(--green); }
+.action-type.brief { background: var(--amber-dim); color: var(--amber); }
+.action-body {}
+.action-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.action-account {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+}
+.action-account:hover { color: var(--accent); text-decoration: underline; }
+.action-prompt {
+  font-size: 13px;
+  color: var(--soft-blue);
+  line-height: 1.4;
+}
+.action-reasoning {
+  font-size: 11px;
+  color: var(--muted-dim);
+  margin-top: 4px;
+  font-style: italic;
+}
+.action-actions {
+  display: flex;
+  gap: 6px;
+}
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+.btn-approve {
+  background: var(--green);
+  color: var(--bg);
+}
+.btn-approve:hover { background: #2EBF9C; }
+.btn-edit {
+  background: transparent;
+  color: var(--soft-blue);
+  border: 1px solid var(--border);
+}
+.btn-edit:hover { background: var(--card); color: var(--white); }
+.btn-snooze {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-snooze:hover { background: var(--card); color: var(--white); }
+
+/* ===== Pills / Badges ===== */
+.tier {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.tier.t1 { background: rgba(95, 163, 224, 0.2); color: var(--accent); border: 1px solid rgba(95, 163, 224, 0.4); }
+.tier.t2 { background: rgba(168, 197, 232, 0.15); color: var(--soft-blue); border: 1px solid rgba(168, 197, 232, 0.3); }
+.tier.t3 { background: rgba(143, 165, 196, 0.1); color: var(--muted); border: 1px solid rgba(143, 165, 196, 0.25); }
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.status::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status.active { background: var(--green-dim); color: var(--green); }
+.status.active::before { background: var(--green); }
+.status.nurture { background: var(--amber-dim); color: var(--amber); }
+.status.nurture::before { background: var(--amber); }
+.status.risk { background: var(--red-dim); color: var(--red); }
+.status.risk::before { background: var(--red); }
+.status.closed { background: var(--gray-dim); color: var(--gray); }
+.status.closed::before { background: var(--gray); }
+
+.days {
+  font-size: 11px;
+  color: var(--muted);
+}
+.days.warn { color: var(--amber); font-weight: 600; }
+.days.critical { color: var(--red); font-weight: 600; }
+
+/* ===== Accounts Table ===== */
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.filter-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chip {
+  padding: 5px 10px;
+  background: var(--card-alt);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font-size: 11px;
+  color: var(--soft-blue);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chip:hover { background: var(--card-hov); color: var(--white); }
+.chip.active { background: var(--accent-glow); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+.search-box {
+  padding: 6px 12px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--white);
+  font-size: 12px;
+  width: 220px;
+}
+.search-box:focus { outline: none; border-color: var(--accent); }
+
+.accounts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.accounts-table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted-dim);
+}
+.accounts-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border-sub);
+  vertical-align: top;
+}
+.accounts-table tr { cursor: pointer; transition: background 0.15s; }
+.accounts-table tbody tr:hover { background: var(--card-alt); }
+.account-name {
+  font-weight: 600;
+  color: var(--white);
+}
+.account-contact {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.summary-cell {
+  color: var(--soft-blue);
+  max-width: 280px;
+  line-height: 1.4;
+}
+.action-cell {
+  color: var(--white);
+  font-style: italic;
+  max-width: 240px;
+  line-height: 1.4;
+}
+.ai-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  background: var(--accent-glow);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 3px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+/* ===== Drawer (Prep Brief) ===== */
+.drawer {
+  position: fixed;
+  top: 0; right: -440px;
+  width: 440px;
+  height: 100vh;
+  background: var(--bg-deep);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  transition: right 0.25s ease;
+  z-index: 100;
+  box-shadow: -8px 0 24px rgba(0,0,0,0.4);
+}
+.drawer.open { right: 0; }
+.drawer-header {
+  padding: 20px 24px 16px 24px;
+  border-bottom: 1px solid var(--border-sub);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.drawer-kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.drawer-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+}
+.drawer-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.close-btn {
+  width: 30px; height: 30px;
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.close-btn:hover { background: var(--card-hov); color: var(--white); }
+.drawer-body {
+  padding: 20px 24px 24px 24px;
+}
+.brief-section { margin-bottom: 22px; }
+.brief-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted-dim);
+  margin-bottom: 8px;
+}
+.brief-item {
+  background: var(--card);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-left: 2px solid var(--accent);
+}
+.brief-item.commit { border-left-color: var(--green); }
+.brief-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.brief-item-body {
+  font-size: 13px;
+  color: var(--white);
+  line-height: 1.4;
+}
+.sentiment-bar {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+.sentiment-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--card);
+}
+.sentiment-dot.pos { background: var(--green); }
+.sentiment-dot.neu { background: var(--muted); }
+.sentiment-dot.neg { background: var(--red); }
+.talking-points {
+  background: var(--card);
+  border-radius: 6px;
+  padding: 14px;
+}
+.talking-points li {
+  list-style: none;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-sub);
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--soft-blue);
+}
+.talking-points li:last-child { border-bottom: none; }
+.talking-points li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ===== Commitments View ===== */
+.commit-list { }
+.commit-row {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 14px;
+  align-items: center;
+}
+.commit-check {
+  width: 22px; height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.commit-check:hover { border-color: var(--green); background: var(--green-dim); }
+.commit-check.done { background: var(--green); border-color: var(--green); }
+.commit-check.done::after {
+  content: '✓';
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 14px;
+}
+.commit-row.done .commit-body { text-decoration: line-through; color: var(--muted-dim); }
+.commit-body {
+  font-size: 13px;
+  color: var(--white);
+}
+.commit-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.commit-owner {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.commit-owner.us { background: var(--accent-glow); color: var(--accent); }
+.commit-owner.them { background: var(--card-alt); color: var(--soft-blue); }
+.commit-due {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.commit-due.today { color: var(--amber); }
+.commit-due.overdue { color: var(--red); }
+
+/* ===== Alerts View ===== */
+.alert-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.alert-account { font-size: 14px; font-weight: 700; color: var(--white); }
+.alert-silence { color: var(--red); font-weight: 600; font-size: 12px; }
+.alert-context {
+  font-size: 12px;
+  color: var(--soft-blue);
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: var(--bg-deep);
+  border-radius: 6px;
+  font-style: italic;
+}
+
+/* ===== Override log view ===== */
+.override-row {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-sub);
+  font-size: 12px;
+  align-items: center;
+}
+.override-row:hover { background: var(--card-alt); }
+.override-date { color: var(--muted); font-size: 11px; width: 100px; }
+.override-was, .override-now { color: var(--white); }
+.override-arrow { color: var(--accent); }
+
+/* ===== Empty view placeholder ===== */
+.coming-soon {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+.coming-soon h3 { color: var(--white); font-size: 18px; margin-bottom: 8px; }
+
+/* ===== Inline edit state ===== */
+.action-prompt.editing {
+  background: var(--bg-deep);
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+  color: var(--white);
+  outline: none;
+  display: block;
+}
+
+/* ===== Ask Strata ===== */
+.ask-strata {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.ask-strata::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(600px circle at 0% 0%, var(--accent-glow), transparent 50%);
+  opacity: 0.6;
+}
+.ask-strata > * { position: relative; }
+.ask-kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--accent);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ask-kicker .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+.ask-kicker .scope {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+.ask-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ask-input-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.ask-icon {
+  color: var(--muted);
+  font-size: 16px;
+}
+.ask-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-size: 14px;
+  padding: 13px 0;
+  outline: none;
+  font-family: inherit;
+}
+.ask-input::placeholder { color: var(--muted-dim); }
+.ask-shortcut {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+.ask-examples {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.ask-chip {
+  padding: 6px 12px;
+  background: var(--card-alt);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font-size: 12px;
+  color: var(--soft-blue);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ask-chip:hover {
+  background: var(--card-hov);
+  color: var(--white);
+  border-color: var(--accent);
+}
+.ask-chip-prefix {
+  color: var(--muted-dim);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* Answer state */
+.ask-answer {
+  margin-top: 16px;
+  border-top: 1px solid var(--border-sub);
+  padding-top: 16px;
+  display: none;
+  animation: askFade 0.22s ease;
+}
+.ask-answer.open { display: block; }
+@keyframes askFade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ask-answer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.ask-question {
+  font-size: 12px;
+  color: var(--muted);
+}
+.ask-question-text {
+  color: var(--soft-blue);
+  font-style: italic;
+}
+.ask-dismiss {
+  width: 24px; height: 24px;
+  border-radius: 4px;
+  background: var(--card-alt);
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ask-dismiss:hover { background: var(--card-hov); color: var(--white); }
+.ask-headline {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+.ask-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.ask-result {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  background: var(--card-alt);
+  border: 1px solid var(--border-sub);
+  border-radius: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ask-result:hover {
+  background: var(--card-hov);
+  border-color: var(--border);
+}
+.ask-result-marker {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.ask-result-marker.red { background: var(--red); }
+.ask-result-marker.amber { background: var(--amber); }
+.ask-result-marker.green { background: var(--green); }
+.ask-result-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ask-result-detail {
+  font-size: 12px;
+  color: var(--soft-blue);
+  margin-top: 3px;
+  line-height: 1.45;
+}
+.ask-result-meta {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+  align-self: center;
+}
+.ask-provenance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted-dim);
+  padding-top: 12px;
+  border-top: 1px solid var(--border-sub);
+}
+.ask-prov-icon {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--green-dim);
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.ask-empty {
+  font-size: 13px;
+  color: var(--soft-blue);
+  background: var(--card-alt);
+  padding: 12px 14px;
+  border-radius: 6px;
+  border-left: 2px solid var(--accent);
+  line-height: 1.45;
+}
+
+/* ===== Alert state transitions ===== */
+.alert-card { transition: opacity 0.25s, background 0.2s; position: relative; }
+.alert-card.snoozed { opacity: 0.45; }
+.alert-card.acted { border-left-color: var(--green) !important; }
+.alert-card.inactive { opacity: 0.5; border-left-color: var(--gray) !important; }
+.alert-state-tag {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.alert-state-tag.acted { background: var(--green-dim); color: var(--green); }
+.alert-state-tag.snoozed { background: var(--amber-dim); color: var(--amber); }
+.alert-state-tag.inactive { background: var(--gray-dim); color: var(--gray); }
+
+/* ===== No-results table row ===== */
+.no-results-row td {
+  text-align: center;
+  padding: 28px 16px !important;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 1100px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .ask-result { grid-template-columns: auto 1fr; }
+  .ask-result-meta { grid-column: 2; text-align: left; margin-top: 4px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="brand">STRATA</div>
+
+    <div class="nav-label">WORKSPACE</div>
+    <div class="nav-item active" data-view="dashboard">
+      <span class="icon">◆</span> Dashboard
+    </div>
+    <div class="nav-item" data-view="accounts">
+      <span class="icon">◉</span> Accounts
+      <span class="count">18</span>
+    </div>
+    <div class="nav-item" data-view="commitments">
+      <span class="icon">✓</span> Commitments
+      <span class="count green">7</span>
+    </div>
+    <div class="nav-item" data-view="alerts">
+      <span class="icon">⚑</span> Re-engagement
+      <span class="count red">3</span>
+    </div>
+    <div class="nav-item" data-view="briefs">
+      <span class="icon">📋</span> Prep briefs
+    </div>
+
+    <div class="nav-label">LEARNING</div>
+    <div class="nav-item" data-view="overrides">
+      <span class="icon">⟲</span> Override log
+    </div>
+    <div class="nav-item" data-view="settings">
+      <span class="icon">⚙</span> Settings
+    </div>
+
+    <div class="user-card">
+      <div class="avatar">AS</div>
+      <div>
+        <div class="user-name">Ayushi Shah</div>
+        <div class="user-role">GTM Team</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main>
+
+    <!-- ===== DASHBOARD VIEW ===== -->
+    <section id="view-dashboard" class="view active">
+      <header class="topbar">
+        <div>
+          <h1>Good morning, Ayushi</h1>
+          <p>5 actions to review. 3 alerts. 10 minutes tops.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-ghost">Last sync: 2 min ago</button>
+          <button class="btn-primary">Mark digest done</button>
+        </div>
+      </header>
+
+      <!-- ===== Ask Strata ===== -->
+      <section class="ask-strata">
+        <div class="ask-kicker">
+          <span class="dot"></span>
+          ASK STRATA
+          <span class="scope">SCOPE: 18 ACCOUNTS · 30 DAYS</span>
+        </div>
+        <div class="ask-input-wrap">
+          <span class="ask-icon">⌕</span>
+          <input type="text" class="ask-input" id="ask-input" placeholder="Ask anything about your accounts, interactions, or commitments...">
+          <span class="ask-shortcut">⌘ K</span>
+        </div>
+        <div class="ask-examples">
+          <button class="ask-chip" data-q="cold-t1"><span class="ask-chip-prefix">TRY</span>Which T1 accounts have gone cold?</button>
+          <button class="ask-chip" data-q="overdue"><span class="ask-chip-prefix">TRY</span>What commitments are overdue this week?</button>
+          <button class="ask-chip" data-q="jefferson"><span class="ask-chip-prefix">TRY</span>What did Jefferson ask about last?</button>
+          <button class="ask-chip" data-q="follow-friday"><span class="ask-chip-prefix">TRY</span>Which accounts need follow-up before Friday?</button>
+          <button class="ask-chip" data-q="risk-changes"><span class="ask-chip-prefix">TRY</span>What changed in risk status this week?</button>
+        </div>
+        <div class="ask-answer" id="ask-answer"></div>
+      </section>
+
+      <!-- KPI row -->
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">ACTIVE ACCOUNTS</div>
+          <div class="kpi-stat">18</div>
+          <div class="kpi-detail">+3 this week</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">FOLLOW-UP RATE (48H)</div>
+          <div class="kpi-stat">68%</div>
+          <div class="kpi-detail">Above 60% target</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">OVERRIDE RATE</div>
+          <div class="kpi-stat">22%</div>
+          <div class="kpi-detail">Below 30% threshold</div>
+        </div>
+        <div class="kpi outcome">
+          <div class="kpi-label">AVG DAYS TO MEETING</div>
+          <div class="kpi-stat">12.4</div>
+          <div class="kpi-detail">-14% vs baseline</div>
+        </div>
+      </div>
+
+      <!-- Today's priorities -->
+      <section class="section-card">
+        <h2>Today's priorities <span class="cap-note">CAPPED AT 5</span></h2>
+        <p class="section-sub">Ordered by tier and recency. Approve to mark acted-on. Edit to tweak the prompt before sending. Snooze to hide until tomorrow.</p>
+
+        <div class="action-card">
+          <div class="action-type">✉</div>
+          <div class="action-body">
+            <div class="action-meta">
+              <span class="action-account" data-open-brief="geisinger">Geisinger Health System</span>
+              <span class="tier t1">T1</span>
+              <span class="status active">Active</span>
+              <span class="days">Last contact: 4 days ago</span>
+            </div>
+            <div class="action-prompt"><span class="ai-badge">AI</span>Ping CMO Sarah Klein on proposal scope decision. She mentioned board review on Apr 15 — follow up to confirm timeline.</div>
+            <div class="action-reasoning">Status kept at Active because sentiment was positive and recency is within T1 threshold.</div>
+          </div>
+          <div class="action-actions">
+            <button class="btn-sm btn-approve" onclick="approveCard(this)">Approve</button>
+            <button class="btn-sm btn-edit" onclick="editCard(this)">Edit</button>
+            <button class="btn-sm btn-snooze" onclick="snoozeCard(this)">Snooze</button>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="action-type alert">⚑</div>
+          <div class="action-body">
+            <div class="action-meta">
+              <span class="action-account" data-open-brief="hackensack">Hackensack Meridian</span>
+              <span class="tier t1">T1</span>
+              <span class="status risk">At Risk</span>
+              <span class="days critical">Silent 14 days</span>
+            </div>
+            <div class="action-prompt"><span class="ai-badge">AI</span>Re-engagement alert fired. Last interaction was post-demo on Mar 27. No response to 2 follow-ups. Consider a warm nudge or escalation to your VP.</div>
+            <div class="action-reasoning">T1 threshold is 7 days. Account is 2x over. Status moved from Active → At Risk on Apr 10.</div>
+          </div>
+          <div class="action-actions">
+            <button class="btn-sm btn-approve" onclick="approveCard(this)">Approve</button>
+            <button class="btn-sm btn-edit" onclick="editCard(this)">Edit</button>
+            <button class="btn-sm btn-snooze" onclick="snoozeCard(this)">Snooze</button>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="action-type commit">✓</div>
+          <div class="action-body">
+            <div class="action-meta">
+              <span class="action-account" data-open-brief="ochsner">Ochsner Health</span>
+              <span class="tier t2">T2</span>
+              <span class="status active">Active</span>
+              <span class="days">Due today</span>
+            </div>
+            <div class="action-prompt"><span class="ai-badge">AI</span>You committed to send the updated pricing deck by Friday. Call was on Apr 11. Deck not yet attached to the account.</div>
+            <div class="action-reasoning">Commitment extracted from transcript. Tracked as an owned task, not a generic prompt.</div>
+          </div>
+          <div class="action-actions">
+            <button class="btn-sm btn-approve" onclick="approveCard(this)">Approve</button>
+            <button class="btn-sm btn-edit" onclick="editCard(this)">Edit</button>
+            <button class="btn-sm btn-snooze" onclick="snoozeCard(this)">Snooze</button>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="action-type brief">📋</div>
+          <div class="action-body">
+            <div class="action-meta">
+              <span class="action-account" data-open-brief="uab">UAB Medicine</span>
+              <span class="tier t1">T1</span>
+              <span class="status active">Active</span>
+              <span class="days warn">Call in 2h</span>
+            </div>
+            <div class="action-prompt"><span class="ai-badge">AI</span>Prep brief generated for your 11am call with CDO Mark Alvarez. Last 3 interactions, 2 open commitments, 2 suggested talking points ready.</div>
+          </div>
+          <div class="action-actions">
+            <button class="btn-sm btn-approve" onclick="openBrief('uab')">Open brief</button>
+            <button class="btn-sm btn-snooze" onclick="snoozeCard(this)">Skip</button>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="action-type">✉</div>
+          <div class="action-body">
+            <div class="action-meta">
+              <span class="action-account" data-open-brief="jefferson">Jefferson Health</span>
+              <span class="tier t1">T1</span>
+              <span class="status risk">At Risk</span>
+              <span class="days warn">Silent 9 days</span>
+            </div>
+            <div class="action-prompt"><span class="ai-badge">AI</span>Early warning. Jefferson has gone quiet 2 days past the T1 threshold of 7. Last email from them asked about contracting timeline — worth a direct ping.</div>
+            <div class="action-reasoning">Status downgraded from Active → At Risk today. Override if you have context I don't.</div>
+          </div>
+          <div class="action-actions">
+            <button class="btn-sm btn-approve" onclick="approveCard(this)">Approve</button>
+            <button class="btn-sm btn-edit" onclick="editCard(this)">Edit</button>
+            <button class="btn-sm btn-snooze" onclick="snoozeCard(this)">Snooze</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Account snapshot -->
+      <section class="section-card">
+        <h2>Account activity snapshot</h2>
+        <p class="section-sub">Click a row to open the prep brief drawer.</p>
+
+        <div class="table-toolbar">
+          <div class="filter-group" data-target="accounts-body">
+            <div class="chip active" data-filter-type="all" data-filter-value="all">All (18)</div>
+            <div class="chip" data-filter-type="tier" data-filter-value="t1">T1 (6)</div>
+            <div class="chip" data-filter-type="tier" data-filter-value="t2">T2 (8)</div>
+            <div class="chip" data-filter-type="tier" data-filter-value="t3">T3 (4)</div>
+            <div class="chip" data-filter-type="status" data-filter-value="risk">At Risk (3)</div>
+          </div>
+          <input type="text" class="search-box" data-target="accounts-body" placeholder="Search accounts...">
+        </div>
+
+        <table class="accounts-table">
+          <thead>
+            <tr>
+              <th style="width:22%">ACCOUNT</th>
+              <th style="width:10%">TIER</th>
+              <th style="width:12%">STATUS</th>
+              <th style="width:30%">LAST INTERACTION</th>
+              <th style="width:26%">NEXT ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="accounts-body">
+            <tr data-open-brief="geisinger" data-account="geisinger" data-tier="t1" data-status="active">
+              <td>
+                <div class="account-name">Geisinger Health</div>
+                <div class="account-contact">Sarah Klein · CMO</div>
+              </td>
+              <td><span class="tier t1">T1</span></td>
+              <td><span class="status active">Active</span></td>
+              <td>
+                <div class="summary-cell">Board review of proposal on Apr 15. Budget cycle aligned. Positive signal.</div>
+                <div class="days" style="margin-top:6px">4 days ago · email thread</div>
+              </td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Ping on decision timeline</td>
+            </tr>
+            <tr data-open-brief="hackensack" data-account="hackensack" data-tier="t1" data-status="risk">
+              <td>
+                <div class="account-name">Hackensack Meridian</div>
+                <div class="account-contact">David Park · VP Digital</div>
+              </td>
+              <td><span class="tier t1">T1</span></td>
+              <td><span class="status risk">At Risk</span></td>
+              <td>
+                <div class="summary-cell">Post-demo follow-up sent Mar 27. No response to 2 nudges. Sentiment flat.</div>
+                <div class="days critical" style="margin-top:6px">14 days silent · T1 threshold = 7</div>
+              </td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Escalate to VP or drop</td>
+            </tr>
+            <tr data-open-brief="uab" data-account="uab" data-tier="t1" data-status="active">
+              <td>
+                <div class="account-name">UAB Medicine</div>
+                <div class="account-contact">Mark Alvarez · CDO</div>
+              </td>
+              <td><span class="tier t1">T1</span></td>
+              <td><span class="status active">Active</span></td>
+              <td>
+                <div class="summary-cell">Scoping call scheduled for today at 11am. Strong interest in prior auth use case.</div>
+                <div class="days warn" style="margin-top:6px">Call in 2h · prep brief ready</div>
+              </td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Review prep brief</td>
+            </tr>
+            <tr data-open-brief="ochsner" data-account="ochsner" data-tier="t2" data-status="active">
+              <td>
+                <div class="account-name">Ochsner Health</div>
+                <div class="account-contact">Lisa Chen · VP Rev Cycle</div>
+              </td>
+              <td><span class="tier t2">T2</span></td>
+              <td><span class="status active">Active</span></td>
+              <td>
+                <div class="summary-cell">Post-demo call on Apr 11. Requested pricing deck. You committed Friday delivery.</div>
+                <div class="days warn" style="margin-top:6px">Commitment due today</div>
+              </td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Send pricing deck</td>
+            </tr>
+            <tr data-open-brief="jefferson" data-account="jefferson" data-tier="t1" data-status="risk">
+              <td>
+                <div class="account-name">Jefferson Health</div>
+                <div class="account-contact">Priya Ramesh · CMIO</div>
+              </td>
+              <td><span class="tier t1">T1</span></td>
+              <td><span class="status risk">At Risk</span></td>
+              <td>
+                <div class="summary-cell">Asked about contracting timeline on Apr 8. No follow-up. Deal mid-funnel.</div>
+                <div class="days warn" style="margin-top:6px">9 days silent · T1 threshold = 7</div>
+              </td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Direct ping on timeline</td>
+            </tr>
+            <tr data-open-brief="memorial" data-account="memorial" data-tier="t2" data-status="nurture">
+              <td>
+                <div class="account-name">Memorial Hermann</div>
+                <div class="account-contact">Rajiv Shah · Innovation Lead</div>
+              </td>
+              <td><span class="tier t2">T2</span></td>
+              <td><span class="status nurture">Nurture</span></td>
+              <td>
+                <div class="summary-cell">Exploratory conversation. Six-month evaluation cycle. Monthly check-ins.</div>
+                <div class="days" style="margin-top:6px">11 days ago</div>
+              </td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Send case study recap</td>
+            </tr>
+            <tr data-open-brief="inova" data-account="inova" data-tier="t3" data-status="nurture">
+              <td>
+                <div class="account-name">Inova Health</div>
+                <div class="account-contact">Karen Blake · Director IT</div>
+              </td>
+              <td><span class="tier t3">T3</span></td>
+              <td><span class="status nurture">Nurture</span></td>
+              <td>
+                <div class="summary-cell">Early-stage. Requested educational content. Procurement budget unclear.</div>
+                <div class="days" style="margin-top:6px">18 days ago</div>
+              </td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Share AI governance primer</td>
+            </tr>
+            <tr data-open-brief="presbyterian" data-account="presbyterian" data-tier="t2" data-status="closed">
+              <td>
+                <div class="account-name">Presbyterian Healthcare</div>
+                <div class="account-contact">Tom Winters · VP Ops</div>
+              </td>
+              <td><span class="tier t2">T2</span></td>
+              <td><span class="status closed">Closed</span></td>
+              <td>
+                <div class="summary-cell">Chose internal build. Left door open for future partnership. No action.</div>
+                <div class="days" style="margin-top:6px">Closed Apr 2</div>
+              </td>
+              <td class="action-cell">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </section>
+
+    <!-- ===== ACCOUNTS VIEW ===== -->
+    <section id="view-accounts" class="view">
+      <header class="topbar">
+        <div>
+          <h1>All accounts</h1>
+          <p>18 accounts across 4 tiers. Click any row for the full prep brief.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-ghost">Export CSV</button>
+          <button class="btn-primary">+ New account</button>
+        </div>
+      </header>
+
+      <section class="section-card">
+        <div class="table-toolbar">
+          <div class="filter-group" data-target="all-accounts-body">
+            <div class="chip active" data-filter-type="all" data-filter-value="all">All (18)</div>
+            <div class="chip" data-filter-type="status" data-filter-value="active">Active (10)</div>
+            <div class="chip" data-filter-type="status" data-filter-value="nurture">Nurture (4)</div>
+            <div class="chip" data-filter-type="status" data-filter-value="risk">At Risk (3)</div>
+            <div class="chip" data-filter-type="status" data-filter-value="closed">Closed (1)</div>
+          </div>
+          <input type="text" class="search-box" data-target="all-accounts-body" placeholder="Search 18 accounts...">
+        </div>
+
+        <table class="accounts-table">
+          <thead>
+            <tr>
+              <th>ACCOUNT</th>
+              <th>TIER</th>
+              <th>STATUS</th>
+              <th>LAST INTERACTION</th>
+              <th>OWNER</th>
+              <th>NEXT ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="all-accounts-body">
+            <tr data-open-brief="geisinger" data-account="geisinger" data-tier="t1" data-status="active">
+              <td><div class="account-name">Geisinger Health</div><div class="account-contact">Sarah Klein · CMO</div></td>
+              <td><span class="tier t1">T1</span></td>
+              <td><span class="status active">Active</span></td>
+              <td><div class="summary-cell">Board review Apr 15. Positive sentiment.</div><div class="days" style="margin-top:4px">4d ago</div></td>
+              <td style="color:var(--soft-blue)">Ayushi</td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Ping on timeline</td>
+            </tr>
+            <tr data-open-brief="hackensack" data-account="hackensack" data-tier="t1" data-status="risk">
+              <td><div class="account-name">Hackensack Meridian</div><div class="account-contact">David Park · VP Digital</div></td>
+              <td><span class="tier t1">T1</span></td>
+              <td><span class="status risk">At Risk</span></td>
+              <td><div class="summary-cell">2 nudges no response.</div><div class="days critical" style="margin-top:4px">14d silent</div></td>
+              <td style="color:var(--soft-blue)">Ayushi</td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Escalate or drop</td>
+            </tr>
+            <tr data-open-brief="uab" data-account="uab" data-tier="t1" data-status="active">
+              <td><div class="account-name">UAB Medicine</div><div class="account-contact">Mark Alvarez · CDO</div></td>
+              <td><span class="tier t1">T1</span></td>
+              <td><span class="status active">Active</span></td>
+              <td><div class="summary-cell">Call today. Prior auth use case.</div><div class="days warn" style="margin-top:4px">Call in 2h</div></td>
+              <td style="color:var(--soft-blue)">Ayushi</td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Review prep brief</td>
+            </tr>
+            <tr data-open-brief="ochsner" data-account="ochsner" data-tier="t2" data-status="active">
+              <td><div class="account-name">Ochsner Health</div><div class="account-contact">Lisa Chen · VP Rev Cycle</div></td>
+              <td><span class="tier t2">T2</span></td>
+              <td><span class="status active">Active</span></td>
+              <td><div class="summary-cell">Committed pricing deck by Friday.</div><div class="days warn" style="margin-top:4px">Due today</div></td>
+              <td style="color:var(--soft-blue)">Ayushi</td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Send pricing deck</td>
+            </tr>
+            <tr data-open-brief="jefferson" data-account="jefferson" data-tier="t1" data-status="risk">
+              <td><div class="account-name">Jefferson Health</div><div class="account-contact">Priya Ramesh · CMIO</div></td>
+              <td><span class="tier t1">T1</span></td>
+              <td><span class="status risk">At Risk</span></td>
+              <td><div class="summary-cell">Contracting timeline question unanswered.</div><div class="days warn" style="margin-top:4px">9d silent</div></td>
+              <td style="color:var(--soft-blue)">Ayushi</td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Direct ping</td>
+            </tr>
+            <tr data-open-brief="memorial" data-account="memorial" data-tier="t2" data-status="nurture">
+              <td><div class="account-name">Memorial Hermann</div><div class="account-contact">Rajiv Shah</div></td>
+              <td><span class="tier t2">T2</span></td>
+              <td><span class="status nurture">Nurture</span></td>
+              <td><div class="summary-cell">Six-month evaluation cycle.</div><div class="days" style="margin-top:4px">11d ago</div></td>
+              <td style="color:var(--soft-blue)">Ayushi</td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Case study recap</td>
+            </tr>
+            <tr data-open-brief="inova" data-account="inova" data-tier="t3" data-status="nurture">
+              <td><div class="account-name">Inova Health</div><div class="account-contact">Karen Blake</div></td>
+              <td><span class="tier t3">T3</span></td>
+              <td><span class="status nurture">Nurture</span></td>
+              <td><div class="summary-cell">Requested educational content.</div><div class="days" style="margin-top:4px">18d ago</div></td>
+              <td style="color:var(--soft-blue)">Ayushi</td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Share governance primer</td>
+            </tr>
+            <tr data-open-brief="novant" data-account="novant" data-tier="t3" data-status="nurture">
+              <td><div class="account-name">Novant Health</div><div class="account-contact">Aisha Okonkwo</div></td>
+              <td><span class="tier t3">T3</span></td>
+              <td><span class="status nurture">Nurture</span></td>
+              <td><div class="summary-cell">Initial intro. Sent overview deck.</div><div class="days" style="margin-top:4px">6d ago</div></td>
+              <td style="color:var(--soft-blue)">Ayushi</td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Wait for response</td>
+            </tr>
+            <tr data-open-brief="presbyterian" data-account="presbyterian" data-tier="t2" data-status="closed">
+              <td><div class="account-name">Presbyterian Healthcare</div><div class="account-contact">Tom Winters</div></td>
+              <td><span class="tier t2">T2</span></td>
+              <td><span class="status closed">Closed</span></td>
+              <td><div class="summary-cell">Chose internal build. Door left open.</div><div class="days" style="margin-top:4px">Apr 2</div></td>
+              <td style="color:var(--soft-blue)">Ayushi</td>
+              <td class="action-cell">—</td>
+            </tr>
+            <tr data-open-brief="baylor" data-account="baylor" data-tier="t1" data-status="active">
+              <td><div class="account-name">Baylor Scott & White</div><div class="account-contact">Marcus Lee · VP AI</div></td>
+              <td><span class="tier t1">T1</span></td>
+              <td><span class="status active">Active</span></td>
+              <td><div class="summary-cell">Discovery scheduled next week.</div><div class="days" style="margin-top:4px">2d ago</div></td>
+              <td style="color:var(--soft-blue)">Ayushi</td>
+              <td class="action-cell"><span class="ai-badge">AI</span>Send pre-call brief</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </section>
+
+    <!-- ===== COMMITMENTS VIEW ===== -->
+    <section id="view-commitments" class="view">
+      <header class="topbar">
+        <div>
+          <h1>Commitments</h1>
+          <p>Every promise made — by us or them — tracked as a task with a due date.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-ghost">Filter by owner</button>
+          <button class="btn-primary">+ Add manually</button>
+        </div>
+      </header>
+
+      <section class="section-card">
+        <h2>Open commitments</h2>
+        <p class="section-sub">7 open. 2 due today. 1 overdue. Tick to mark complete.</p>
+
+        <div class="commit-list">
+          <div class="commit-row">
+            <div class="commit-check" onclick="toggleCheck(this)"></div>
+            <div>
+              <div class="commit-body">Send updated pricing deck to Lisa Chen</div>
+              <div class="commit-meta">Ochsner Health · T2 · Extracted from call on Apr 11</div>
+            </div>
+            <div class="commit-owner us">US</div>
+            <div class="commit-due today">Due today</div>
+          </div>
+
+          <div class="commit-row">
+            <div class="commit-check" onclick="toggleCheck(this)"></div>
+            <div>
+              <div class="commit-body">Share the prior auth case study with Mark Alvarez before the call</div>
+              <div class="commit-meta">UAB Medicine · T1 · Committed on email Apr 14</div>
+            </div>
+            <div class="commit-owner us">US</div>
+            <div class="commit-due today">Due today</div>
+          </div>
+
+          <div class="commit-row">
+            <div class="commit-check" onclick="toggleCheck(this)"></div>
+            <div>
+              <div class="commit-body">Waiting on Priya Ramesh to send the procurement contact</div>
+              <div class="commit-meta">Jefferson Health · T1 · Promised by Apr 10</div>
+            </div>
+            <div class="commit-owner them">THEM</div>
+            <div class="commit-due overdue">4 days overdue</div>
+          </div>
+
+          <div class="commit-row">
+            <div class="commit-check" onclick="toggleCheck(this)"></div>
+            <div>
+              <div class="commit-body">Follow up with Sarah Klein after the Apr 15 board review</div>
+              <div class="commit-meta">Geisinger Health · T1 · Noted on Apr 10 call</div>
+            </div>
+            <div class="commit-owner us">US</div>
+            <div class="commit-due">Due Apr 16</div>
+          </div>
+
+          <div class="commit-row">
+            <div class="commit-check" onclick="toggleCheck(this)"></div>
+            <div>
+              <div class="commit-body">David Park to confirm internal stakeholder list</div>
+              <div class="commit-meta">Hackensack Meridian · T1 · Promised on demo follow-up</div>
+            </div>
+            <div class="commit-owner them">THEM</div>
+            <div class="commit-due">Due Apr 17</div>
+          </div>
+
+          <div class="commit-row">
+            <div class="commit-check" onclick="toggleCheck(this)"></div>
+            <div>
+              <div class="commit-body">Send governance primer PDF to Karen Blake</div>
+              <div class="commit-meta">Inova Health · T3 · Promised in intro email</div>
+            </div>
+            <div class="commit-owner us">US</div>
+            <div class="commit-due">Due Apr 20</div>
+          </div>
+
+          <div class="commit-row">
+            <div class="commit-check" onclick="toggleCheck(this)"></div>
+            <div>
+              <div class="commit-body">Schedule scoping call with Baylor legal team</div>
+              <div class="commit-meta">Baylor Scott & White · T1 · Discussed on intro call</div>
+            </div>
+            <div class="commit-owner us">US</div>
+            <div class="commit-due">Due Apr 22</div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ===== ALERTS VIEW ===== -->
+    <section id="view-alerts" class="view">
+      <header class="topbar">
+        <div>
+          <h1>Re-engagement alerts</h1>
+          <p>Accounts that have gone quiet past their tier threshold. 3 active.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-ghost">Alert settings</button>
+        </div>
+      </header>
+
+      <section class="section-card">
+        <div class="alert-card" data-account="hackensack" data-status="risk">
+          <div class="alert-header">
+            <div>
+              <div class="alert-account">Hackensack Meridian</div>
+              <div style="display:flex;gap:8px;margin-top:4px">
+                <span class="tier t1">T1</span>
+                <span class="status risk">At Risk</span>
+              </div>
+            </div>
+            <div class="alert-silence">Silent 14 days · T1 threshold = 7</div>
+          </div>
+          <div class="alert-context">
+            Last contact was a post-demo follow-up email on Mar 27. Two unanswered nudges. Sentiment on the demo itself was flat — David Park asked probing questions but did not commit to a next step. Consider escalation to your VP or a warm re-intro through a mutual contact.
+          </div>
+          <div class="action-actions" style="justify-content:flex-end">
+            <button class="btn-sm btn-approve" onclick="alertActNow(this)">Act now</button>
+            <button class="btn-sm btn-snooze" onclick="alertSnooze(this)">Snooze 7d</button>
+            <button class="btn-sm btn-snooze" onclick="alertMarkInactive(this)">Mark inactive</button>
+          </div>
+        </div>
+
+        <div class="alert-card" data-account="jefferson" data-status="risk" style="border-left-color: var(--amber)">
+          <div class="alert-header">
+            <div>
+              <div class="alert-account">Jefferson Health</div>
+              <div style="display:flex;gap:8px;margin-top:4px">
+                <span class="tier t1">T1</span>
+                <span class="status risk">At Risk</span>
+              </div>
+            </div>
+            <div class="alert-silence" style="color:var(--amber)">Silent 9 days · T1 threshold = 7</div>
+          </div>
+          <div class="alert-context">
+            Priya Ramesh asked about contracting timeline on Apr 8 and has not responded to the reply. Deal is mid-funnel. A direct ping about the specific question (timeline) is more likely to re-engage than a generic check-in.
+          </div>
+          <div class="action-actions" style="justify-content:flex-end">
+            <button class="btn-sm btn-approve" onclick="alertActNow(this)">Act now</button>
+            <button class="btn-sm btn-snooze" onclick="alertSnooze(this)">Snooze 7d</button>
+            <button class="btn-sm btn-snooze" onclick="alertMarkInactive(this)">Mark inactive</button>
+          </div>
+        </div>
+
+        <div class="alert-card" data-account="memorial" data-status="nurture" style="border-left-color: var(--amber)">
+          <div class="alert-header">
+            <div>
+              <div class="alert-account">Memorial Hermann</div>
+              <div style="display:flex;gap:8px;margin-top:4px">
+                <span class="tier t2">T2</span>
+                <span class="status nurture">Nurture</span>
+              </div>
+            </div>
+            <div class="alert-silence" style="color:var(--amber)">Silent 11 days · T2 threshold = 14</div>
+          </div>
+          <div class="alert-context">
+            Not yet triggered on the T2 threshold, but you'd marked this account as "check in monthly." A case study or industry update could keep it warm without asking for a meeting.
+          </div>
+          <div class="action-actions" style="justify-content:flex-end">
+            <button class="btn-sm btn-approve" onclick="alertActNow(this)">Act now</button>
+            <button class="btn-sm btn-snooze" onclick="alertSnooze(this)">Snooze 7d</button>
+            <button class="btn-sm btn-snooze" onclick="alertMarkInactive(this)">Mark inactive</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ===== PREP BRIEFS VIEW ===== -->
+    <section id="view-briefs" class="view">
+      <header class="topbar">
+        <div>
+          <h1>Prep briefs</h1>
+          <p>On-demand one-pagers for upcoming meetings. Generated 24h before calendar events.</p>
+        </div>
+      </header>
+
+      <section class="section-card">
+        <h2>Upcoming calls (48 hours)</h2>
+        <p class="section-sub">Click any card to open the brief.</p>
+
+        <div class="action-card" onclick="openBrief('uab')" style="cursor:pointer">
+          <div class="action-type brief">📋</div>
+          <div class="action-body">
+            <div class="action-meta">
+              <span class="action-account">UAB Medicine</span>
+              <span class="tier t1">T1</span>
+              <span class="days warn">Today 11:00 AM</span>
+            </div>
+            <div class="action-prompt">Scoping call with Mark Alvarez, CDO. Prior auth use case. Brief ready.</div>
+          </div>
+          <div class="action-actions"><button class="btn-sm btn-approve">Open</button></div>
+        </div>
+
+        <div class="action-card">
+          <div class="action-type brief">📋</div>
+          <div class="action-body">
+            <div class="action-meta">
+              <span class="action-account">Baylor Scott & White</span>
+              <span class="tier t1">T1</span>
+              <span class="days">Tomorrow 2:00 PM</span>
+            </div>
+            <div class="action-prompt">Discovery call with Marcus Lee, VP AI. Brief generating at 2pm today.</div>
+          </div>
+          <div class="action-actions"><button class="btn-sm btn-edit">Pending</button></div>
+        </div>
+
+        <div class="action-card">
+          <div class="action-type brief">📋</div>
+          <div class="action-body">
+            <div class="action-meta">
+              <span class="action-account">Ochsner Health</span>
+              <span class="tier t2">T2</span>
+              <span class="days">Apr 18 · 10:30 AM</span>
+            </div>
+            <div class="action-prompt">Pricing follow-up with Lisa Chen. Commitment to send deck by Friday.</div>
+          </div>
+          <div class="action-actions"><button class="btn-sm btn-edit">Pending</button></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ===== OVERRIDE LOG VIEW ===== -->
+    <section id="view-overrides" class="view">
+      <header class="topbar">
+        <div>
+          <h1>Override log</h1>
+          <p>Where you corrected the AI. Review weekly to surface patterns in what the model gets wrong.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-ghost">Last 7 days</button>
+          <button class="btn-ghost">Export</button>
+        </div>
+      </header>
+
+      <div class="kpi-row" style="grid-template-columns: repeat(3, 1fr)">
+        <div class="kpi">
+          <div class="kpi-label">OVERRIDES THIS WEEK</div>
+          <div class="kpi-stat">8</div>
+          <div class="kpi-detail">of 37 AI-assigned actions · 22%</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">MOST COMMON ERROR</div>
+          <div class="kpi-stat" style="font-size:18px;padding-top:12px">Status too aggressive</div>
+          <div class="kpi-detail">AI marks "At Risk" before context warrants</div>
+        </div>
+        <div class="kpi outcome">
+          <div class="kpi-label">TREND</div>
+          <div class="kpi-stat">↓ 6%</div>
+          <div class="kpi-detail">vs last week</div>
+        </div>
+      </div>
+
+      <section class="section-card">
+        <h2>Recent overrides</h2>
+        <p class="section-sub">Every correction logged here feeds into the weekly tuning cycle.</p>
+
+        <div style="display:grid;grid-template-columns:auto 1fr 1fr auto;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted-dim)">
+          <div style="width:100px">WHEN</div>
+          <div>AI ORIGINAL</div>
+          <div>YOUR CORRECTION</div>
+          <div style="width:120px">ACCOUNT</div>
+        </div>
+
+        <div class="override-row">
+          <div class="override-date">Today, 9:14am</div>
+          <div class="override-was">Status: <span class="status risk">At Risk</span></div>
+          <div class="override-now">→ <span class="status active">Active</span> (had off-record call Tuesday)</div>
+          <div style="font-size:12px;color:var(--soft-blue)">Jefferson Health</div>
+        </div>
+        <div class="override-row">
+          <div class="override-date">Yesterday, 4:32pm</div>
+          <div class="override-was">Next action: "Send case study"</div>
+          <div class="override-now">→ "Schedule intro call with CISO first"</div>
+          <div style="font-size:12px;color:var(--soft-blue)">Novant Health</div>
+        </div>
+        <div class="override-row">
+          <div class="override-date">Yesterday, 11:08am</div>
+          <div class="override-was">Tier: <span class="tier t2">T2</span></div>
+          <div class="override-now">→ <span class="tier t1">T1</span> (upgraded after proposal request)</div>
+          <div style="font-size:12px;color:var(--soft-blue)">Baylor Scott & White</div>
+        </div>
+        <div class="override-row">
+          <div class="override-date">Apr 14, 3:20pm</div>
+          <div class="override-was">Status: <span class="status risk">At Risk</span></div>
+          <div class="override-now">→ <span class="status nurture">Nurture</span> (long cycle expected)</div>
+          <div style="font-size:12px;color:var(--soft-blue)">Memorial Hermann</div>
+        </div>
+        <div class="override-row">
+          <div class="override-date">Apr 14, 10:02am</div>
+          <div class="override-was">Commitment owner: Us</div>
+          <div class="override-now">→ Them (they committed in the transcript, not me)</div>
+          <div style="font-size:12px;color:var(--soft-blue)">Hackensack Meridian</div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ===== SETTINGS VIEW ===== -->
+    <section id="view-settings" class="view">
+      <header class="topbar">
+        <div>
+          <h1>Settings</h1>
+          <p>Configure tier thresholds, ingestion sources, and the daily digest.</p>
+        </div>
+      </header>
+
+      <section class="section-card">
+        <h2>Tier-aware thresholds</h2>
+        <p class="section-sub">How many days of silence before an account fires a re-engagement alert.</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px">
+          <div style="background:var(--card-alt);padding:16px;border-radius:8px;border-left:3px solid var(--accent)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span class="tier t1">T1</span>
+              <span style="color:var(--muted);font-size:11px">Enterprise · Active proposals</span>
+            </div>
+            <div style="font-size:32px;font-weight:700;color:var(--white)">7 days</div>
+          </div>
+          <div style="background:var(--card-alt);padding:16px;border-radius:8px;border-left:3px solid var(--accent)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span class="tier t2">T2</span>
+              <span style="color:var(--muted);font-size:11px">Mid-market · Nurture</span>
+            </div>
+            <div style="font-size:32px;font-weight:700;color:var(--white)">14 days</div>
+          </div>
+          <div style="background:var(--card-alt);padding:16px;border-radius:8px;border-left:3px solid var(--accent)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span class="tier t3">T3</span>
+              <span style="color:var(--muted);font-size:11px">Long-shot · Educational</span>
+            </div>
+            <div style="font-size:32px;font-weight:700;color:var(--white)">21 days</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>Ingestion sources</h2>
+        <p class="section-sub">What the system is reading.</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--card-alt);border-radius:6px">
+            <div>
+              <div style="font-weight:600">Gmail · ayushi@strata.com</div>
+              <div style="font-size:11px;color:var(--muted)">Scoped to label: "GTM"</div>
+            </div>
+            <span class="status active">Connected</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--card-alt);border-radius:6px">
+            <div>
+              <div style="font-weight:600">Fireflies · Meeting transcripts</div>
+              <div style="font-size:11px;color:var(--muted)">Webhook active</div>
+            </div>
+            <span class="status active">Connected</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--card-alt);border-radius:6px">
+            <div>
+              <div style="font-weight:600">Google Calendar</div>
+              <div style="font-size:11px;color:var(--muted)">For prep brief triggers</div>
+            </div>
+            <span class="status active">Connected</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--card-alt);border-radius:6px;opacity:0.55">
+            <div>
+              <div style="font-weight:600">LinkedIn Messages</div>
+              <div style="font-size:11px;color:var(--muted-dim)">Coming in V2</div>
+            </div>
+            <span class="status closed">V2</span>
+          </div>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+  <!-- ===== PREP BRIEF DRAWER ===== -->
+  <aside class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-kicker">MEETING PREP BRIEF</div>
+        <div class="drawer-title" id="drawer-title">Account</div>
+        <div class="drawer-subtitle" id="drawer-subtitle">Meeting details</div>
+      </div>
+      <button class="close-btn" onclick="closeBrief()">×</button>
+    </div>
+
+    <div class="drawer-body" id="drawer-body">
+      <!-- content injected by JS -->
+    </div>
+  </aside>
+
+</div>
+
+<script>
+// ===== View switching =====
+document.querySelectorAll('.nav-item').forEach(n => {
+  n.addEventListener('click', () => {
+    const view = n.dataset.view;
+    if (!view) return;
+    document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    n.classList.add('active');
+    const target = document.getElementById('view-' + view);
+    if (target) target.classList.add('active');
+    closeBrief();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  });
+});
+
+// ===== Action card interactions =====
+function approveCard(btn) {
+  const card = btn.closest('.action-card');
+  card.classList.add('approved');
+  setTimeout(() => { card.style.display = 'none'; }, 1000);
+}
+function snoozeCard(btn) {
+  const card = btn.closest('.action-card');
+  card.classList.add('dismissed');
+  setTimeout(() => { card.style.display = 'none'; }, 400);
+}
+function editCard(btn) {
+  const card = btn.closest('.action-card');
+  const prompt = card.querySelector('.action-prompt');
+  if (prompt.classList.contains('editing')) return;
+  const currentText = prompt.textContent.replace(/^AI/, '').trim();
+  prompt.classList.add('editing');
+  prompt.setAttribute('contenteditable', 'true');
+  prompt.focus();
+  document.execCommand && document.execCommand('selectAll', false, null);
+  prompt.addEventListener('blur', () => {
+    prompt.classList.remove('editing');
+    prompt.setAttribute('contenteditable', 'false');
+  }, { once: true });
+}
+
+// ===== Commitment checkbox =====
+function toggleCheck(el) {
+  el.classList.toggle('done');
+  el.closest('.commit-row').classList.toggle('done');
+}
+
+// ===== Prep brief drawer =====
+const briefs = {
+  geisinger: {
+    title: 'Geisinger Health System',
+    subtitle: 'Call with Sarah Klein, CMO · no upcoming meeting',
+    accountMeta: 'T1 · Active · 4 days since last contact',
+    interactions: [
+      { date: 'Apr 11', type: 'Email (from them)', summary: 'Sarah confirmed the board would review the proposal on Apr 15. Asked two questions about data residency and BAA coverage.' },
+      { date: 'Apr 8',  type: 'Call transcript',    summary: 'Discovery call with CMO + VP Clinical Informatics. Strong interest in prior auth automation. Budget cycle aligns with Q3.' },
+      { date: 'Apr 2',  type: 'Email (from us)',    summary: 'Intro deck sent. Positive reply within 20 minutes.' },
+    ],
+    commitments: [
+      { who: 'us', text: 'Follow up after the Apr 15 board review', due: 'Apr 16' },
+      { who: 'them', text: 'Sarah to send IT security contact', due: 'Apr 14' },
+    ],
+    sentiment: ['pos', 'pos', 'neu'],
+    sentimentNote: 'Trending positive. No flags.',
+    talkingPoints: [
+      'Reference the data residency question. We have a clean answer — bring it up before she asks.',
+      'Budget cycle alignment is a genuine signal. Don\'t let the board review pass without a touchpoint.',
+    ]
+  },
+  hackensack: {
+    title: 'Hackensack Meridian',
+    subtitle: 'No upcoming call · 14 days since last contact',
+    accountMeta: 'T1 · At Risk · silent past T1 threshold of 7',
+    interactions: [
+      { date: 'Mar 27', type: 'Email (from us)',    summary: 'Post-demo follow-up with case study link and next-step options.' },
+      { date: 'Mar 24', type: 'Call transcript',    summary: 'Demo call with David Park. Good questions but no committed next step. Asked about pricing model, not implementation.' },
+      { date: 'Mar 20', type: 'Email (from us)',    summary: 'Demo scheduling thread. Quick turnaround on their side.' },
+    ],
+    commitments: [
+      { who: 'them', text: 'David to confirm internal stakeholder list', due: 'Apr 17 (pending)' },
+    ],
+    sentiment: ['neu', 'neu', 'pos'],
+    sentimentNote: 'Sentiment cooled after the demo. Flat tone on the follow-up.',
+    talkingPoints: [
+      'Don\'t send another generic check-in. Two have gone unanswered.',
+      'Consider a warm intro through a mutual contact on the board, or escalate to your VP for a direct outreach.',
+    ]
+  },
+  uab: {
+    title: 'UAB Medicine',
+    subtitle: 'Scoping call today at 11:00 AM with Mark Alvarez, CDO',
+    accountMeta: 'T1 · Active · 2 days since last contact',
+    interactions: [
+      { date: 'Apr 15', type: 'Email (from them)',  summary: 'Mark confirmed the call agenda. Wants to focus on prior auth and ambient documentation use cases.' },
+      { date: 'Apr 12', type: 'Email (from us)',    summary: 'Sent the pre-call brief and an overview of our implementation methodology.' },
+      { date: 'Apr 9',  type: 'Intro call',         summary: '30-min exploratory. Mark is evaluating 3 vendors, timeline is Q3 pilot, Q4 decision.' },
+    ],
+    commitments: [
+      { who: 'us', text: 'Share the prior auth case study before the call', due: 'Today (pending)' },
+      { who: 'us', text: 'Draft scoping document for the Q3 pilot', due: 'Apr 19' },
+    ],
+    sentiment: ['pos', 'pos', 'pos'],
+    sentimentNote: 'Strong positive throughout. Classic T1 signal.',
+    talkingPoints: [
+      'Lead with the prior auth case study. He\'s asked about it twice — he wants to see specifics, not a generic pitch.',
+      'Ask about the other two vendors. Don\'t be defensive. Knowing the field helps you differentiate.',
+    ]
+  },
+  ochsner: {
+    title: 'Ochsner Health',
+    subtitle: 'Pricing follow-up · commitment due today',
+    accountMeta: 'T2 · Active · 3 days since last contact',
+    interactions: [
+      { date: 'Apr 11', type: 'Call transcript',    summary: 'Post-demo call with Lisa Chen. Asked for pricing deck by end of week. Committed to Friday delivery.' },
+      { date: 'Apr 4',  type: 'Email (from them)',  summary: 'Lisa requested a demo, confirmed budget authority.' },
+    ],
+    commitments: [
+      { who: 'us', text: 'Send updated pricing deck', due: 'Today' },
+    ],
+    sentiment: ['pos', 'pos'],
+    sentimentNote: 'Engaged. Decision-maker with budget.',
+    talkingPoints: [
+      'Pricing deck needs to reflect the 3-seat tier she hinted at. Don\'t send the default enterprise slide.',
+      'Include one line asking about her Q2 vs Q3 timeline preference — pulls the conversation forward.',
+    ]
+  },
+  jefferson: {
+    title: 'Jefferson Health',
+    subtitle: 'No upcoming call · 9 days since last contact',
+    accountMeta: 'T1 · At Risk · silent 2 days past T1 threshold',
+    interactions: [
+      { date: 'Apr 8',  type: 'Email (from them)',  summary: 'Priya asked about contracting timeline and BAA templates. Specific, tactical question.' },
+      { date: 'Apr 5',  type: 'Call transcript',    summary: 'Second discovery. Strong fit on ambient documentation. Deal mid-funnel.' },
+      { date: 'Apr 1',  type: 'Email (from us)',    summary: 'Sent follow-up materials after first call.' },
+    ],
+    commitments: [
+      { who: 'them', text: 'Priya to send procurement contact', due: 'Apr 10 (4 days overdue)' },
+    ],
+    sentiment: ['pos', 'pos', 'neu'],
+    sentimentNote: 'Was strong, now silent. The specific question from Apr 8 is the thread to pull on.',
+    talkingPoints: [
+      'Reply directly to her Apr 8 question. Specific answer beats generic check-in every time.',
+      'Don\'t apologize for the delay. Just answer the question and move the deal forward.',
+    ]
+  }
+};
+
+function openBrief(id) {
+  const brief = briefs[id];
+  if (!brief) return;
+  document.getElementById('drawer-title').textContent = brief.title;
+  document.getElementById('drawer-subtitle').textContent = brief.subtitle;
+
+  const body = document.getElementById('drawer-body');
+  body.innerHTML = `
+    <div class="brief-section">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span style="padding:4px 10px;background:var(--card);border-radius:4px;font-size:11px;color:var(--soft-blue)">${brief.accountMeta}</span>
+      </div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-label">LAST 3 INTERACTIONS</div>
+      ${brief.interactions.map(i => `
+        <div class="brief-item">
+          <div class="brief-item-top"><span>${i.type}</span><span>${i.date}</span></div>
+          <div class="brief-item-body">${i.summary}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-label">OPEN COMMITMENTS</div>
+      ${brief.commitments.map(c => `
+        <div class="brief-item commit">
+          <div class="brief-item-top">
+            <span class="commit-owner ${c.who}">${c.who.toUpperCase()}</span>
+            <span>${c.due}</span>
+          </div>
+          <div class="brief-item-body">${c.text}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-label">SENTIMENT TREND</div>
+      <div style="background:var(--card);border-radius:6px;padding:14px">
+        <div class="sentiment-bar">
+          ${brief.sentiment.map(s => `<span class="sentiment-dot ${s}"></span>`).join('')}
+          <span style="margin-left:10px;font-size:11px;color:var(--muted)">oldest → latest</span>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--soft-blue);font-style:italic">${brief.sentimentNote}</div>
+      </div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-label">SUGGESTED TALKING POINTS</div>
+      <ul class="talking-points">
+        ${brief.talkingPoints.map(t => `<li>${t}</li>`).join('')}
+      </ul>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn-primary" style="flex:1">Open in account view</button>
+      <button class="btn-ghost">Export PDF</button>
+    </div>
+  `;
+
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('app').classList.add('drawer-open');
+}
+
+function closeBrief() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('app').classList.remove('drawer-open');
+}
+
+// Attach click handlers for brief opens
+document.querySelectorAll('[data-open-brief]').forEach(el => {
+  el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const id = el.dataset.openBrief || el.closest('[data-open-brief]').dataset.openBrief;
+    openBrief(id);
+  });
+});
+
+// Close drawer on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeBrief();
+});
+
+// Chip filter visual toggle only (mock)
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    c.parentElement.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+  });
+});
+
+// ===== Table filtering & search =====
+// State per tbody id: { filter: {type, value} | null, search: string }
+const tableState = {};
+
+function getTableState(id) {
+  if (!tableState[id]) tableState[id] = { filter: null, search: '' };
+  return tableState[id];
+}
+
+function applyTableFilter(tbodyId) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  const state = getTableState(tbodyId);
+  const search = (state.search || '').toLowerCase().trim();
+  const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => !r.classList.contains('no-results-row'));
+  let visibleCount = 0;
+
+  rows.forEach(r => {
+    let show = true;
+
+    // Apply chip filter
+    if (state.filter && state.filter.type !== 'all') {
+      const rowVal = r.dataset[state.filter.type]; // dataset.tier or dataset.status
+      if (rowVal !== state.filter.value) show = false;
+    }
+
+    // Apply search across visible cell text
+    if (show && search) {
+      if (!r.textContent.toLowerCase().includes(search)) show = false;
+    }
+
+    r.style.display = show ? '' : 'none';
+    if (show) visibleCount++;
+  });
+
+  // Manage the no-results placeholder row
+  let nrr = tbody.querySelector('.no-results-row');
+  if (visibleCount === 0) {
+    if (!nrr) {
+      nrr = document.createElement('tr');
+      nrr.className = 'no-results-row';
+      const colCount = tbody.closest('table').querySelectorAll('thead th').length;
+      const td = document.createElement('td');
+      td.colSpan = colCount;
+      td.textContent = 'No matching accounts found.';
+      nrr.appendChild(td);
+      tbody.appendChild(nrr);
+    }
+  } else if (nrr) {
+    nrr.remove();
+  }
+}
+
+// Wire chip clicks to filtering (within their group only, scoped to their target tbody)
+document.querySelectorAll('.filter-group').forEach(group => {
+  const tbodyId = group.dataset.target;
+  if (!tbodyId) return; // not all chip groups are filter chips
+  group.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', (e) => {
+      // visual toggle handled by the generic handler above; we just apply the filter
+      const type = c.dataset.filterType;
+      const value = c.dataset.filterValue;
+      const state = getTableState(tbodyId);
+      state.filter = { type, value };
+      applyTableFilter(tbodyId);
+    });
+  });
+});
+
+// Wire search box live filtering
+document.querySelectorAll('.search-box[data-target]').forEach(box => {
+  const tbodyId = box.dataset.target;
+  box.addEventListener('input', () => {
+    const state = getTableState(tbodyId);
+    state.search = box.value;
+    applyTableFilter(tbodyId);
+  });
+});
+
+// ===== Re-engagement alert handlers =====
+function ensureAlertTag(card, label, kind) {
+  let tag = card.querySelector('.alert-state-tag');
+  if (!tag) {
+    tag = document.createElement('div');
+    card.appendChild(tag);
+  }
+  tag.className = 'alert-state-tag ' + kind;
+  tag.textContent = label;
+}
+
+function alertActNow(btn) {
+  const card = btn.closest('.alert-card');
+  card.classList.remove('snoozed', 'inactive');
+  card.classList.add('acted');
+  ensureAlertTag(card, 'ACTED', 'acted');
+  btn.textContent = 'Acted';
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+  btn.style.cursor = 'default';
+}
+
+function alertSnooze(btn) {
+  const card = btn.closest('.alert-card');
+  card.classList.remove('acted', 'inactive');
+  card.classList.add('snoozed');
+  ensureAlertTag(card, 'SNOOZED 7D', 'snoozed');
+}
+
+function alertMarkInactive(btn) {
+  const card = btn.closest('.alert-card');
+  card.classList.remove('acted', 'snoozed');
+  card.classList.add('inactive');
+  ensureAlertTag(card, 'INACTIVE', 'inactive');
+  // Also visually update the status pill inside the card
+  const statusPill = card.querySelector('.status');
+  if (statusPill) {
+    statusPill.className = 'status closed';
+    statusPill.textContent = 'Inactive';
+  }
+}
+
+// ===== Fallback prep brief generator =====
+// For accounts in the table that don't have a hand-written brief, build one from the row data.
+function buildFallbackBrief(slug) {
+  // Look up the row in either tbody
+  const row = document.querySelector(`tr[data-account="${slug}"]`);
+  if (!row) return null;
+  const name = row.querySelector('.account-name')?.textContent.trim() || 'Account';
+  const contact = row.querySelector('.account-contact')?.textContent.trim() || '';
+  const tier = (row.dataset.tier || '').toUpperCase();
+  const status = row.dataset.status || '';
+  const summary = row.querySelector('.summary-cell')?.textContent.trim() || 'No recent interaction summary available.';
+  const days = row.querySelector('.days')?.textContent.trim() || '';
+  const nextAction = row.querySelector('.action-cell')?.textContent.replace(/^AI/, '').trim() || 'Review and prioritize.';
+
+  const statusLabel = {
+    active: 'Active', risk: 'At Risk', nurture: 'Nurture', closed: 'Closed'
+  }[status] || status;
+
+  return {
+    title: name,
+    subtitle: contact + (days ? ' · ' + days : ''),
+    accountMeta: `${tier} · ${statusLabel}${days ? ' · ' + days : ''}`,
+    interactions: [
+      {
+        date: days || 'Recent',
+        type: 'Latest interaction',
+        summary: summary
+      }
+    ],
+    commitments: [],
+    sentiment: status === 'risk' ? ['neu', 'neg'] : status === 'closed' ? ['neu', 'neu'] : ['neu', 'pos'],
+    sentimentNote: status === 'risk'
+      ? 'Recent signals trending negative. Re-engagement needed.'
+      : status === 'closed'
+      ? 'Account is closed. No active sentiment trend.'
+      : 'Sentiment stable. No recent flags.',
+    talkingPoints: [
+      `Suggested next action: ${nextAction}.`,
+      `Account is ${statusLabel.toLowerCase()} at tier ${tier}. Calibrate outreach to that posture.`
+    ]
+  };
+}
+
+// Patch openBrief to fall back to row-derived briefs
+const originalOpenBrief = openBrief;
+openBrief = function(id) {
+  if (briefs[id]) {
+    return originalOpenBrief(id);
+  }
+  const fallback = buildFallbackBrief(id);
+  if (!fallback) return;
+  briefs[id] = fallback; // cache so re-opens are instant and consistent
+  return originalOpenBrief(id);
+};
+
+// Make every row with data-account openable as a brief, even if it lacks data-open-brief
+document.querySelectorAll('tr[data-account]').forEach(row => {
+  if (!row.dataset.openBrief) row.dataset.openBrief = row.dataset.account;
+  if (!row.__briefBound) {
+    row.addEventListener('click', (e) => {
+      // Don't trigger if a button or input was clicked inside the row
+      if (e.target.closest('button, input, a')) return;
+      openBrief(row.dataset.openBrief);
+    });
+    row.__briefBound = true;
+  }
+});
+
+// ===== Ask Strata =====
+const askAnswers = {
+  'cold-t1': {
+    question: 'Which T1 accounts have gone cold?',
+    headline: '2 of your 6 T1 accounts are past the 7-day silence threshold.',
+    results: [
+      {
+        marker: 'red',
+        name: 'Hackensack Meridian',
+        tier: 't1',
+        detail: 'Silent 14 days. Two unanswered post-demo nudges since Mar 27. Sentiment cooled after the Mar 24 demo. Status moved Active → At Risk on Apr 10.',
+        meta: '14d silent · 2x threshold',
+        brief: 'hackensack'
+      },
+      {
+        marker: 'amber',
+        name: 'Jefferson Health',
+        tier: 't1',
+        detail: 'Silent 9 days. Priya Ramesh asked a specific question on Apr 8 about contracting timeline and BAA templates. Never answered. Deal mid-funnel.',
+        meta: '9d silent · 2d over',
+        brief: 'jefferson'
+      }
+    ],
+    provenance: 'Based on 23 emails, 6 call transcripts, and silence thresholds applied across 6 T1 accounts.'
+  },
+  'overdue': {
+    question: 'What commitments are overdue this week?',
+    headline: '1 overdue. 2 due today. 1 due Apr 16.',
+    results: [
+      {
+        marker: 'red',
+        name: 'Jefferson Health',
+        tier: 't1',
+        detail: 'Priya Ramesh to send the procurement contact. Promised on Apr 5 call. Due Apr 10.',
+        meta: '4 days overdue · THEM',
+        brief: 'jefferson'
+      },
+      {
+        marker: 'amber',
+        name: 'Ochsner Health',
+        tier: 't2',
+        detail: 'Send updated pricing deck to Lisa Chen. Extracted from Apr 11 post-demo call. Reflect the 3-seat tier she hinted at, not the default enterprise slide.',
+        meta: 'Due today · US',
+        brief: 'ochsner'
+      },
+      {
+        marker: 'amber',
+        name: 'UAB Medicine',
+        tier: 't1',
+        detail: 'Share the prior auth case study with Mark Alvarez before the 11am scoping call.',
+        meta: 'Due today · US',
+        brief: 'uab'
+      },
+      {
+        marker: 'green',
+        name: 'Geisinger Health',
+        tier: 't1',
+        detail: 'Follow up with Sarah Klein after the Apr 15 board review of the proposal.',
+        meta: 'Due Apr 16 · US',
+        brief: 'geisinger'
+      }
+    ],
+    provenance: 'Based on 8 commitments tracked across email threads, call transcripts, and the daily digest log.'
+  },
+  'jefferson': {
+    question: 'What did Jefferson ask about last?',
+    headline: 'Priya Ramesh asked about contracting timeline and BAA templates on Apr 8. Specific, tactical, never answered.',
+    results: [
+      {
+        marker: 'amber',
+        name: 'Apr 8 · Email from Priya Ramesh',
+        detail: '"Can you share your standard contracting timeline and a sample BAA? Trying to scope what legal review will look like on our side." No reply sent. 9 days ago.',
+        meta: '9 days ago',
+        brief: 'jefferson'
+      },
+      {
+        marker: 'green',
+        name: 'Apr 5 · Second discovery call',
+        detail: 'Strong fit on ambient documentation. Deal mid-funnel. Sentiment positive. No committed next step on our side.',
+        meta: '12 days ago',
+        brief: 'jefferson'
+      },
+      {
+        marker: 'accent',
+        name: 'Apr 1 · Email from us',
+        detail: 'Follow-up materials sent after first discovery. Quick acknowledgement from Priya within the day.',
+        meta: '16 days ago',
+        brief: 'jefferson'
+      }
+    ],
+    provenance: 'Based on 4 emails and 2 call transcripts from the Jefferson Health account.'
+  },
+  'follow-friday': {
+    question: 'Which accounts need follow-up before Friday?',
+    headline: '4 accounts have a touchpoint due before EOD Friday.',
+    results: [
+      {
+        marker: 'amber',
+        name: 'Ochsner Health',
+        tier: 't2',
+        detail: 'Pricing deck committed by Friday. Reflect the 3-seat tier Lisa hinted at. Worth one line asking about Q2 vs Q3 timeline preference.',
+        meta: 'Due today',
+        brief: 'ochsner'
+      },
+      {
+        marker: 'amber',
+        name: 'UAB Medicine',
+        tier: 't1',
+        detail: 'Scoping call today at 11am with Mark Alvarez. Lead with the prior auth case study. He has asked about it twice.',
+        meta: 'Call in 2h',
+        brief: 'uab'
+      },
+      {
+        marker: 'red',
+        name: 'Jefferson Health',
+        tier: 't1',
+        detail: 'Open question from Apr 8 about contracting timeline. Reply directly to that thread, not a generic check-in.',
+        meta: '9 days silent',
+        brief: 'jefferson'
+      },
+      {
+        marker: 'accent',
+        name: 'Geisinger Health',
+        tier: 't1',
+        detail: 'Board review of the proposal on Apr 15. A short pre-touch before Friday keeps you in front of the decision window.',
+        meta: 'Apr 15 review',
+        brief: 'geisinger'
+      }
+    ],
+    provenance: 'Based on commitments, calendar events, and silence thresholds across 14 active T1 and T2 accounts.'
+  },
+  'risk-changes': {
+    question: 'What changed in account risk status this week?',
+    headline: '3 status changes since last Monday. 1 escalation, 1 de-escalation, 1 tier upgrade.',
+    results: [
+      {
+        marker: 'red',
+        name: 'Hackensack Meridian',
+        tier: 't1',
+        detail: 'Active → At Risk on Apr 10. Crossed the 7-day T1 silence threshold after two unanswered post-demo nudges. Auto-transition.',
+        meta: 'Apr 10',
+        brief: 'hackensack'
+      },
+      {
+        marker: 'green',
+        name: 'Memorial Hermann',
+        tier: 't2',
+        detail: 'At Risk → Nurture on Apr 14. Manual override. Long evaluation cycle is intentional, not silence. Logged in override history.',
+        meta: 'Apr 14'
+      },
+      {
+        marker: 'accent',
+        name: 'Baylor Scott & White',
+        tier: 't1',
+        detail: 'Tier upgraded T2 → T1 on Apr 14 after a proposal request from Marcus Lee. Discovery call scheduled next week.',
+        meta: 'Apr 14'
+      }
+    ],
+    provenance: 'Based on 5 status changes and 1 tier change logged in the override log this week.'
+  },
+  'at-risk': {
+    question: 'Which accounts are at risk?',
+    headline: '2 accounts currently flagged At Risk. Both are T1 and past their silence threshold.',
+    results: [
+      {
+        marker: 'red',
+        name: 'Hackensack Meridian',
+        tier: 't1',
+        detail: 'Silent 14 days. 2x past T1 threshold. Two unanswered post-demo nudges. Sentiment cooled after the Mar 24 demo.',
+        meta: '14d silent',
+        brief: 'hackensack'
+      },
+      {
+        marker: 'red',
+        name: 'Jefferson Health',
+        tier: 't1',
+        detail: 'Silent 9 days. Open question from Priya Ramesh on Apr 8 about contracting timeline never answered. Mid-funnel deal.',
+        meta: '9d silent',
+        brief: 'jefferson'
+      }
+    ],
+    provenance: 'Based on tier-aware silence thresholds applied across 18 accounts and the latest interaction log.'
+  },
+  'active': {
+    question: 'Which accounts are active?',
+    headline: '5 active accounts in flight. 3 are T1.',
+    results: [
+      {
+        marker: 'green',
+        name: 'Geisinger Health',
+        tier: 't1',
+        detail: 'Board review Apr 15. Budget cycle aligned. Sarah Klein engaged.',
+        meta: '4d ago',
+        brief: 'geisinger'
+      },
+      {
+        marker: 'green',
+        name: 'UAB Medicine',
+        tier: 't1',
+        detail: 'Scoping call today at 11am. Strong fit on prior auth use case.',
+        meta: 'Call in 2h',
+        brief: 'uab'
+      },
+      {
+        marker: 'green',
+        name: 'Ochsner Health',
+        tier: 't2',
+        detail: 'Pricing deck committed by Friday. Lisa Chen has budget authority.',
+        meta: 'Due today',
+        brief: 'ochsner'
+      },
+      {
+        marker: 'accent',
+        name: 'Baylor Scott & White',
+        tier: 't1',
+        detail: 'Discovery scheduled next week. Recently upgraded from T2 after proposal request.',
+        meta: '2d ago',
+        brief: 'baylor'
+      }
+    ],
+    provenance: 'Based on current account status across 18 accounts.'
+  },
+  'direct-ping': {
+    question: 'Who needs a direct ping?',
+    headline: 'Jefferson Health is the highest-leverage ping right now.',
+    results: [
+      {
+        marker: 'red',
+        name: 'Jefferson Health',
+        tier: 't1',
+        detail: 'Reply directly to Priya\'s Apr 8 question about contracting timeline. Specific answer beats generic check-in. Don\'t apologize for the delay — just answer it.',
+        meta: '9d silent',
+        brief: 'jefferson'
+      },
+      {
+        marker: 'amber',
+        name: 'Geisinger Health',
+        tier: 't1',
+        detail: 'Sarah Klein has a board review on Apr 15. A short pre-touch keeps you in front of the decision window.',
+        meta: '4d ago',
+        brief: 'geisinger'
+      }
+    ],
+    provenance: 'Based on open questions, commitment status, and silence thresholds across T1 accounts.'
+  }
+};
+
+const askAnswerEl = document.getElementById('ask-answer');
+const askInputEl = document.getElementById('ask-input');
+
+function renderAskAnswer(key) {
+  const a = askAnswers[key];
+  if (!a) return;
+  const resultsHtml = a.results.map(r => `
+    <div class="ask-result" ${r.brief ? `data-open-brief="${r.brief}"` : ''}>
+      <div class="ask-result-marker ${r.marker}"></div>
+      <div>
+        <div class="ask-result-name">
+          ${r.name}
+          ${r.tier ? `<span class="tier ${r.tier}">${r.tier.toUpperCase()}</span>` : ''}
+        </div>
+        <div class="ask-result-detail">${r.detail}</div>
+      </div>
+      <div class="ask-result-meta">${r.meta}</div>
+    </div>
+  `).join('');
+
+  askAnswerEl.innerHTML = `
+    <div class="ask-answer-head">
+      <div class="ask-question">You asked: <span class="ask-question-text">${a.question}</span></div>
+      <button class="ask-dismiss" onclick="dismissAskAnswer()" aria-label="Dismiss">×</button>
+    </div>
+    <div class="ask-headline">${a.headline}</div>
+    <div class="ask-results">${resultsHtml}</div>
+    <div class="ask-provenance">
+      <span class="ask-prov-icon">✓</span>
+      <span>${a.provenance}</span>
+    </div>
+  `;
+  askAnswerEl.classList.add('open');
+
+  // Re-bind brief openers on the freshly rendered nodes
+  askAnswerEl.querySelectorAll('[data-open-brief]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openBrief(el.dataset.openBrief);
+    });
+  });
+}
+
+function dismissAskAnswer() {
+  askAnswerEl.classList.remove('open');
+  askInputEl.value = '';
+}
+
+function showAskEmpty(query) {
+  askAnswerEl.innerHTML = `
+    <div class="ask-answer-head">
+      <div class="ask-question">You asked: <span class="ask-question-text">${query}</span></div>
+      <button class="ask-dismiss" onclick="dismissAskAnswer()" aria-label="Dismiss">×</button>
+    </div>
+    <div class="ask-empty">I couldn't find an exact answer, but try asking about account status, overdue commitments, silent accounts, follow-ups, or risk changes.</div>
+  `;
+  askAnswerEl.classList.add('open');
+}
+
+// Wire up example chips
+document.querySelectorAll('.ask-chip').forEach(c => {
+  c.addEventListener('click', () => {
+    const q = c.dataset.q;
+    const text = c.textContent.replace(/^TRY\s*/i, '').trim();
+    askInputEl.value = text;
+    renderAskAnswer(q);
+  });
+});
+
+// Lightweight pattern matching for typed queries (mock NL routing)
+function routeAskQuery(raw) {
+  const v = raw.trim().toLowerCase();
+  if (!v) return null;
+  // Order matters: most specific patterns first
+  if (/jefferson/.test(v)) return 'jefferson';
+  if (/hackensack/.test(v)) return 'at-risk';
+  if (/risk.*chang|status.*chang|chang.*(risk|status)|escalat|tier.*chang|what.*chang.*week/.test(v)) return 'risk-changes';
+  if (/(at[- ]?risk|which.*risk|accounts.*risk|show.*risk)/.test(v)) return 'at-risk';
+  if (/cold|gone (cold|quiet|silent)|silent|stale|quiet|t1.*cold/.test(v)) return 'cold-t1';
+  if (/overdue|past due|due this week|deadline|overdue commit|show.*overdue/.test(v)) return 'overdue';
+  if (/friday|follow[- ]?up|end of week|by eow|need.*follow/.test(v)) return 'follow-friday';
+  if (/direct ping|who.*ping|need.*ping|priorit.*ping/.test(v)) return 'direct-ping';
+  if (/(active accounts|which.*active|show.*active|in flight|in motion)/.test(v)) return 'active';
+  if (/commit/.test(v)) return 'overdue';
+  return null;
+}
+
+askInputEl.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  if (!askInputEl.value.trim()) return;
+  const key = routeAskQuery(askInputEl.value);
+  if (key) renderAskAnswer(key);
+  else showAskEmpty(askInputEl.value);
+});
+
+// Keyboard shortcut to focus the bar (⌘K / Ctrl+K)
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    askInputEl.focus();
+    askInputEl.select();
+  }
+});
+</script>
+
+</body>
+</html>
